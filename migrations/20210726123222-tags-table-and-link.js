@@ -39,7 +39,7 @@ exports.up = async function (db) {
   });
 
   // Index on `owner_uuid` and `state`
-  await db.addIndex("tags", "todos__owner_uuid__state", ["owner_uuid", "state"]);
+  await db.addIndex("tags", "tags__owner_uuid__state", ["owner_uuid", "state"]);
 
   // Todos table
   await db.createTable("todos_tags", {
@@ -59,9 +59,9 @@ exports.up = async function (db) {
   });
 
   // Index on `todo_uuid`
-  await db.addIndex("tags", "tags__todo_uuid", ["todo_uuid"]);
+  await db.addIndex("todos_tags", "todos_tags__todo_uuid", ["todo_uuid"]);
   // Index on `tag_uuid`
-  await db.addIndex("tags", "tags__tag_uuid", ["tag_uuid"]);
+  await db.addIndex("todos_tags", "todos_tags__tag_uuid", ["tag_uuid"]);
 };
 
 exports.down = function (db) {
