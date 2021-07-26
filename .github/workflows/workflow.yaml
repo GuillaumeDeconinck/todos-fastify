@@ -1,0 +1,234 @@
+name: Node.js CI
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "**"
+
+jobs:
+  define_docker_tags_names:
+    name: Define Docker tags' names
+    runs-on: ubuntu-latest
+    outputs:
+      docker_image_path: ${{ steps.tags_names.outputs.docker_image_path }}
+      docker_image_tag_base: ${{ steps.tags_names.outputs.docker_image_tag_base }}
+      docker_image_tag_candidate: ${{ steps.tags_names.outputs.docker_image_tag_candidate }}
+      docker_image_tag_release: ${{ steps.tags_names.outputs.docker_image_tag_release }}
+    steps:
+      - id: tags_names
+        name: Define Docker tags names
+        run: |
+          ### IMAGE PATH
+          IMAGE_PATH=ghcr.io/${{ github.repository }}
+          # Change all uppercase to lowercase
+          IMAGE_PATH=$(echo $IMAGE_PATH | tr '[A-Z]' '[a-z]')
+
+          ### VERSION
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "main" ] && VERSION=latest
+
+          ### Set env vars
+          DOCKER_IMAGE_PATH=$IMAGE_PATH
+          DOCKER_IMAGE_TAG_BASE=$VERSION-build-base
+          DOCKER_IMAGE_TAG_CANDIDATE=$VERSION-candidate
+          DOCKER_IMAGE_TAG_RELEASE=$VERSION
+
+          ### Echo Docker tags' names
+          echo "Docker base build => $DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_BASE"
+          echo "Docker candidate (e2e) => $DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_CANDIDATE"
+          echo "Docker release => $DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_RELEASE"
+
+          ### Set job output
+          echo "::set-output name=docker_image_path::${DOCKER_IMAGE_PATH}"
+          echo "::set-output name=docker_image_tag_base::${DOCKER_IMAGE_TAG_BASE}"
+          echo "::set-output name=docker_image_tag_candidate::${DOCKER_IMAGE_TAG_CANDIDATE}"
+          echo "::set-output name=docker_image_tag_release::${DOCKER_IMAGE_TAG_RELEASE}"
+
+  build_base:
+    name: Build & push Docker base image
+    needs: ["define_docker_tags_names"]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - id: checkout
+        uses: actions/checkout@v2
+      - id: login
+        name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: build_base
+        name: Build & push base image
+        run: |
+          DOCKER_IMAGE_PATH=${{ needs.define_docker_tags_names.outputs.docker_image_path }}
+          DOCKER_IMAGE_TAG_BASE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_base }}
+
+          DOCKER_IMAGE_BASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_BASE
+
+          docker pull $DOCKER_IMAGE_BASE || true
+          docker build . --cache-from $DOCKER_IMAGE_BASE --tag $DOCKER_IMAGE_BASE --target dev
+          docker push $DOCKER_IMAGE_BASE
+
+  run_lint:
+    name: Run lint on Docker base image
+    needs: ["define_docker_tags_names", "build_base"]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    steps:
+      - id: login
+        name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: run_lint
+        name: Run lint on Docker base image
+        run: |
+          DOCKER_IMAGE_PATH=${{ needs.define_docker_tags_names.outputs.docker_image_path }}
+          DOCKER_IMAGE_TAG_BASE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_base }}
+
+          DOCKER_IMAGE_BASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_BASE
+
+          docker pull $DOCKER_IMAGE_BASE
+          docker run --rm $DOCKER_IMAGE_BASE npm run lint
+
+  run_unit_tests:
+    name: Run unit tests on Docker base image
+    needs: ["define_docker_tags_names", "build_base"]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    steps:
+      - id: login
+        name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: run_unit_tests
+        name: Run unit tests on Docker base image
+        run: |
+          DOCKER_IMAGE_PATH=${{ needs.define_docker_tags_names.outputs.docker_image_path }}
+          DOCKER_IMAGE_TAG_BASE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_base }}
+
+          DOCKER_IMAGE_BASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_BASE
+
+          docker pull $DOCKER_IMAGE_BASE
+          docker run --rm $DOCKER_IMAGE_BASE npm run test
+
+  build_candidate:
+    name: Build & push Docker candidate image
+    if: ${{ github.ref == 'refs/heads/main' || contains(github.ref, 'ref/head/v*') }}
+    needs:
+      ["define_docker_tags_names", "build_base", "run_lint", "run_unit_tests"]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - id: checkout
+        uses: actions/checkout@v2
+      - id: login
+        name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: build_candidate
+        name: Build & push candidate image
+        run: |
+          DOCKER_IMAGE_PATH=${{ needs.define_docker_tags_names.outputs.docker_image_path }}
+          DOCKER_IMAGE_TAG_BASE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_base }}
+          DOCKER_IMAGE_TAG_CANDIDATE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_candidate }}
+
+          DOCKER_IMAGE_BASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_BASE
+          DOCKER_IMAGE_CANDIDATE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_CANDIDATE
+
+          docker pull $DOCKER_IMAGE_BASE
+          docker build . --cache-from $DOCKER_IMAGE_BASE --tag $DOCKER_IMAGE_CANDIDATE
+          docker push $DOCKER_IMAGE_CANDIDATE
+
+  run_e2e:
+    name: Run e2e tests on candidate image
+    if: ${{ github.ref == 'refs/heads/main' || contains(github.ref, 'ref/head/v*') }}
+    needs: ["define_docker_tags_names", "build_candidate"]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+      contents: read
+    steps:
+      - id: checkout
+        uses: actions/checkout@v2
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run e2e
+        run: |
+          DOCKER_IMAGE_PATH=${{ needs.define_docker_tags_names.outputs.docker_image_path }}
+          DOCKER_IMAGE_TAG_BASE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_base }}
+          DOCKER_IMAGE_TAG_CANDIDATE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_candidate }}
+
+          DOCKER_IMAGE_BASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_BASE
+          DOCKER_IMAGE_CANDIDATE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_CANDIDATE
+
+          docker pull $DOCKER_IMAGE_BASE
+          docker pull $DOCKER_IMAGE_CANDIDATE
+          DOCKER_IMAGE=$DOCKER_IMAGE_CANDIDATE DOCKER_BUILD_IMAGE=$DOCKER_IMAGE_BASE ./__tests__/e2e/start_e2e.sh
+
+  tag_release:
+    name: Tag & push Docker release image
+    if: ${{ github.ref == 'refs/heads/main' || contains(github.ref, 'ref/head/v*') }}
+    needs: ["define_docker_tags_names", "run_e2e"]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    outputs:
+      docker_image_tag: ${{ steps.tag_release.outputs.docker_image_tag }}
+      docker_image_remote_digest: ${{ steps.tag_release.outputs.docker_image_remote_digest }}
+    steps:
+      - id: login
+        name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: tag_release
+        name: Tag & push release image
+        run: |
+          DOCKER_IMAGE_PATH=${{ needs.define_docker_tags_names.outputs.docker_image_path }}
+          DOCKER_IMAGE_TAG_CANDIDATE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_candidate }}
+          DOCKER_IMAGE_TAG_RELEASE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_release }}
+
+          DOCKER_IMAGE_CANDIDATE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_CANDIDATE
+          DOCKER_IMAGE_RELEASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_RELEASE
+
+          docker pull $DOCKER_IMAGE_CANDIDATE
+          docker tag $DOCKER_IMAGE_CANDIDATE $DOCKER_IMAGE_RELEASE
+          docker push $DOCKER_IMAGE_RELEASE
+
+          DOCKER_IMAGE_REMOTE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $DOCKER_IMAGE_RELEASE)
+          echo DOCKER_IMAGE_REMOTE_DIGEST=$DOCKER_IMAGE_REMOTE_DIGEST
+
+          arrIN=(${DOCKER_IMAGE_RELEASE//:/ })
+          VERSION=${arrIN[1]}
+
+          echo "::set-output name=docker_image_tag::${VERSION}"
+          echo "::set-output name=docker_image_remote_digest::${DOCKER_IMAGE_REMOTE_DIGEST}"
