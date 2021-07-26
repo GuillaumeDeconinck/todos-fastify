@@ -3,6 +3,9 @@ import { container } from "tsyringe";
 import { AppConfiguration } from "./tools/config";
 import { Logger } from "./tools/logger";
 import { RestServer } from "./rest";
+// Import postgres in order for the DAOs to be taken into account
+// Once the link to postgres is implemented, it won't be implicitly needed
+import "./infrastructure/postgres";
 
 (async () => {
   try {
