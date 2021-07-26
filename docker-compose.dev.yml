@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "9002:9002"
+    environment:
+      WAIT_HOSTS: postgres:5432
+      NODE_ENV: development
+    command: 'sh -c "/wait && npx nodemon src/index.ts"'
+    volumes:
+      - ./src:/app/src
+    links:
+      - postgres

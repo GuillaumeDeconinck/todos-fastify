@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "9002:9002"
+    environment:
+      WAIT_HOSTS: postgres:5432
+      NODE_ENV: testing
+    command: 'sh -c "/wait && npx nodemon src/index.ts"'
+    volumes:
+      - ./src:/app/src
+    links:
+      - postgres
+  tests-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    environment:
+      WAIT_HOSTS: postgres:5432, api:9002
+      WAIT_LOGGER_LEVEL: "error"
+    command: 'sh -c "/wait && npx db-migrate up && npx nodemon  -w __tests__ -e ts -x \"sleep 1 && /wait && npx jest -c jest.e2e.config.js -i\""'
+    volumes:
+      - ./src:/app/src
+      - ./__tests__:/app/__tests__
+      - ./migrations:/app/migrations
+    links:
+      - postgres
+      - api

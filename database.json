@@ -1,0 +1,41 @@
+{
+  "defaultEnv": "local",
+  "local": {
+    "driver": "pg",
+    "user": "root",
+    "password": "root",
+    "host": "postgres",
+    "database": "accounts"
+  },
+  "localKube": {
+    "driver": "pg",
+    "host": {
+      "ENV": "PG_HOST"
+    },
+    "user": {
+      "ENV": "PG_USER"
+    },
+    "password": {
+      "ENV": "PG_PASS"
+    },
+    "database": {
+      "ENV": "PG_DB"
+    }
+  },
+  "kubernetes": {
+    "driver": "pg",
+    "host": {
+      "ENV": "PG_HOST"
+    },
+    "user": {
+      "ENV": "PG_USER"
+    },
+    "password": {
+      "ENV": "PG_PASS"
+    },
+    "database": {
+      "ENV": "PG_DB"
+    },
+    "ssl": "true"
+  }
+}

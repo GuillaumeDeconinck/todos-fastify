@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  api:
+    image: ${DOCKER_IMAGE}
+    environment:
+      NODE_ENV: testing
+    links:
+      - postgres
+
+  initializer:
+    build:
+      context: .
+      dockerfile: __tests__/e2e/Dockerfile.e2e
+    environment:
+      WAIT_HOSTS: postgres:5432
+      WAIT_LOGGER_LEVEL: "error"
+    links:
+      - postgres
+
+  tests_runner:
+    image: ${DOCKER_BUILD_IMAGE}
+    environment:
+      WAIT_HOSTS: postgres:5432, api:9002
+      WAIT_LOGGER_LEVEL: "error"
+    command: 'sh -c "/wait && npx db-migrate up && npx jest --config jest.e2e.config.js -i"'
+    links:
+      - postgres
+      - api
