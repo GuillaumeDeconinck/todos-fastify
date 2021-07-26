@@ -76,7 +76,30 @@ jobs:
           DOCKER_IMAGE_BASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_BASE
 
           docker pull $DOCKER_IMAGE_BASE || true
-          docker build . --cache-from $DOCKER_IMAGE_BASE --tag $DOCKER_IMAGE_BASE --target dev
+
+          if docker inspect $DOCKER_IMAGE_BASE > /dev/null 2>&1; then
+            echo "Base image already exists, using it as cache"
+
+            docker build . --cache-from $DOCKER_IMAGE_BASE --tag $DOCKER_IMAGE_BASE --target dev
+
+          else
+            echo "Base image doesn't exist, checking if latest-build-base exist"
+            DOCKER_IMAGE_LATEST_BASE=$DOCKER_IMAGE_PATH:latest-build-base
+
+            docker pull $DOCKER_IMAGE_LATEST_BASE || true
+
+            if docker inspect $DOCKER_IMAGE_LATEST_BASE > /dev/null 2>&1; then
+              echo "Latest-build-base exist, using it as cache"
+
+              docker build . --cache-from $DOCKER_IMAGE_LATEST_BASE --tag $DOCKER_IMAGE_BASE --target dev
+
+            else
+              echo "No base image existing (both current and latest), building from scratch..."
+
+              docker build . --tag $DOCKER_IMAGE_BASE --target dev
+            fi
+          fi
+
           docker push $DOCKER_IMAGE_BASE
 
   run_lint:
