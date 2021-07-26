@@ -5,7 +5,7 @@
     "user": "root",
     "password": "root",
     "host": "postgres",
-    "database": "accounts"
+    "database": "todos"
   },
   "localKube": {
     "driver": "pg",
