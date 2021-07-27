@@ -22,5 +22,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/database.json ./database.json
+COPY --from=build /app/migrations ./migrations
 COPY --from=build /app/dist ./dist
 CMD ["node", "dist/index.js"]
