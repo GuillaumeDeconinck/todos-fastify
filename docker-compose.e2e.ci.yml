@@ -26,7 +26,7 @@ services:
     environment:
       WAIT_HOSTS: postgres:5432, api:9002
       WAIT_LOGGER_LEVEL: "error"
-    command: 'sh -c "/wait && npx db-migrate up && npx jest --config jest.e2e.config.js -i"'
+    command: 'sh -c "/wait && npx jest --config jest.e2e.config.js -i"'
     links:
       - postgres
       - api

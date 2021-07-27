@@ -1,4 +1,5 @@
 import * as postgres from "pg";
+import DBMigrate from "db-migrate";
 import { inject, injectable, singleton } from "tsyringe";
 import { AppConfiguration } from "../../tools/config";
 import { Logger } from "../../tools/logger";
@@ -27,6 +28,12 @@ export class PostgresPool {
     const client = await this.pool.connect();
     await client.query("SELECT NOW()");
     client.release();
+
+    // Run migrations
+    const dbMigrate = DBMigrate.getInstance(true, {
+      env: this.configuration.getAppConfig().nodeEnv === "production" ? "kubernetes" : "localKube"
+    });
+    await dbMigrate.up();
   }
 
   async getClient(): Promise<postgres.PoolClient> {

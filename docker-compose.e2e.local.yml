@@ -14,7 +14,7 @@ services:
       PG_USER: root
       PG_PASS: root
       PG_DB: todos
-    command: 'sh -c "/wait && npx db-migrate up && npx nodemon src/index.ts"'
+    command: 'sh -c "/wait && npx nodemon src/index.ts"'
     volumes:
       - ./src:/app/src
     links:
