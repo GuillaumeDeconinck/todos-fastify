@@ -4,6 +4,10 @@ services:
     image: ${DOCKER_IMAGE}
     environment:
       NODE_ENV: testing
+      PG_HOST: postgres
+      PG_USER: root
+      PG_PASS: root
+      PG_DB: todos
     links:
       - postgres
 

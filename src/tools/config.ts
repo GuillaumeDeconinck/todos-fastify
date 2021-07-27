@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { defaults } from "lodash";
-import { singleton } from "tsyringe";
+import { injectable, singleton } from "tsyringe";
 
 interface AppConfig {
   nodeEnv: string;
@@ -11,9 +11,20 @@ interface AppConfig {
   apiRateLimitTTL: number;
 }
 
+interface PGConfig {
+  host: string;
+  port: number;
+  user: string;
+  password: string;
+  database: string;
+  ssl: boolean;
+}
+
 @singleton()
+@injectable()
 export class AppConfiguration {
   private appConfig?: AppConfig;
+  private pgConfig?: PGConfig;
 
   public initialize(): void {
     // Only used within pod to load env vars from Kube's secrets' file
@@ -27,12 +38,31 @@ export class AppConfiguration {
       API_PORT: "9002",
       API_JWT_PUBLIC: "",
       API_JWT_ISS: "",
-      API_RATE_LIMIT_TTL: "3600"
+      API_RATE_LIMIT_TTL: "3600",
+      PG_HOST: "localhost",
+      PG_PORT: "5432",
+      PG_USER: "root",
+      PG_PASS: "root",
+      PG_DB: "flows",
+      PG_SSL: "false"
     };
 
     defaults(process.env, baseConfig);
 
-    const { NODE_ENV, LOG_LEVEL, API_PORT, API_JWT_PUBLIC, API_JWT_ISS, API_RATE_LIMIT_TTL } = process.env;
+    const {
+      NODE_ENV,
+      LOG_LEVEL,
+      API_PORT,
+      API_JWT_PUBLIC,
+      API_JWT_ISS,
+      API_RATE_LIMIT_TTL,
+      PG_HOST,
+      PG_PORT,
+      PG_USER,
+      PG_PASS,
+      PG_DB,
+      PG_SSL
+    } = process.env;
 
     this.appConfig = {
       nodeEnv: NODE_ENV,
@@ -42,10 +72,24 @@ export class AppConfiguration {
       apiJWTIss: API_JWT_ISS,
       apiRateLimitTTL: parseInt(API_RATE_LIMIT_TTL, 10)
     };
+
+    this.pgConfig = {
+      host: PG_HOST,
+      port: parseInt(PG_PORT, 10),
+      user: PG_USER,
+      password: PG_PASS,
+      database: PG_DB,
+      ssl: PG_SSL === "true"
+    };
   }
 
   public getAppConfig(): AppConfig {
     // Return a copy
     return Object.assign({}, this.appConfig);
+  }
+
+  public getPGConfig(): PGConfig {
+    // Return a copy
+    return Object.assign({}, this.pgConfig);
   }
 }

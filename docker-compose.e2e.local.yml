@@ -10,7 +10,11 @@ services:
     environment:
       WAIT_HOSTS: postgres:5432
       NODE_ENV: testing
-    command: 'sh -c "/wait && npx nodemon src/index.ts"'
+      PG_HOST: postgres
+      PG_USER: root
+      PG_PASS: root
+      PG_DB: todos
+    command: 'sh -c "/wait && npx db-migrate up && npx nodemon src/index.ts"'
     volumes:
       - ./src:/app/src
     links:
@@ -23,7 +27,7 @@ services:
     environment:
       WAIT_HOSTS: postgres:5432, api:9002
       WAIT_LOGGER_LEVEL: "error"
-    command: 'sh -c "/wait && npx db-migrate up && npx nodemon  -w __tests__ -e ts -x \"sleep 1 && /wait && npx jest -c jest.e2e.config.js -i\""'
+    command: 'sh -c "/wait && npx nodemon -w __tests__ -e ts -x \"sleep 1 && /wait && npx jest -c jest.e2e.config.js -i\""'
     volumes:
       - ./src:/app/src
       - ./__tests__:/app/__tests__
