@@ -18,11 +18,19 @@ export class PostgresPool {
   ) {}
 
   async connect(): Promise<void> {
-    this.pool = new postgres.Pool({
+    const config: postgres.PoolConfig = {
       ...this.configuration.getPGConfig(),
       min: 1,
       max: 5
-    });
+    };
+
+    if (config.ssl) {
+      config.ssl = {
+        rejectUnauthorized: false
+      };
+    }
+
+    this.pool = new postgres.Pool(config);
 
     // Check if pool works fine
     const client = await this.pool.connect();
@@ -31,7 +39,13 @@ export class PostgresPool {
 
     // Run migrations
     const dbMigrate = DBMigrate.getInstance(true, {
-      env: this.configuration.getAppConfig().nodeEnv === "production" ? "kubernetes" : "localKube"
+      env: "current",
+      config: {
+        current: {
+          driver: "pg",
+          ...config
+        }
+      }
     });
     await dbMigrate.up();
   }
