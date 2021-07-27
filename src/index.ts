@@ -3,9 +3,7 @@ import { container } from "tsyringe";
 import { AppConfiguration } from "./tools/config";
 import { Logger } from "./tools/logger";
 import { RestServer } from "./rest";
-// Import postgres in order for the DAOs to be taken into account
-// Once the link to postgres is implemented, it won't be implicitly needed
-import "./infrastructure/postgres";
+import { PostgresPool } from "./infrastructure/postgres";
 
 (async () => {
   try {
@@ -14,6 +12,11 @@ import "./infrastructure/postgres";
 
     const logger = container.resolve(Logger).logger;
     logger.info("[STARTUP] Config loaded and logger configured");
+
+    // Connect to PGSQL
+    const pgPool = container.resolve(PostgresPool);
+    await pgPool.connect();
+    logger.info("[STARTUP] Postgres pool connected");
 
     // Setup Rest server
     const restServer = container.resolve(RestServer);
