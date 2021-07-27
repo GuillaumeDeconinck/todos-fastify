@@ -56,6 +56,7 @@ export class AppConfiguration {
       API_JWT_PUBLIC,
       API_JWT_ISS,
       API_RATE_LIMIT_TTL,
+      PORT,
       PG_HOST,
       PG_PORT,
       PG_USER,
@@ -67,7 +68,7 @@ export class AppConfiguration {
     this.appConfig = {
       nodeEnv: NODE_ENV,
       logLevel: LOG_LEVEL,
-      apiPort: parseInt(API_PORT, 10),
+      apiPort: parseInt(PORT || API_PORT, 10),
       apiJWTPublic: API_JWT_PUBLIC ? Buffer.from(API_JWT_PUBLIC, "base64").toString("utf-8") : API_JWT_PUBLIC,
       apiJWTIss: API_JWT_ISS,
       apiRateLimitTTL: parseInt(API_RATE_LIMIT_TTL, 10)
