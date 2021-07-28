@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { container, inject, singleton } from "tsyringe";
 import { TodosAppService } from "../../../application/services/todosAppService";
+import { todosRoutesSchemas } from "./docsSchemas";
 
 @singleton()
 class TodosRoutes {
@@ -23,8 +24,18 @@ class TodosRoutes {
     const ownerUuid = request.query["ownerUuid"];
 
     const todoUuid = request.params["todoUuid"];
-    const todo = await this.todosAppService.getTodo(ownerUuid, todoUuid);
-    reply.status(200).send(todo);
+
+    try {
+      const todo = await this.todosAppService.getTodo(ownerUuid, todoUuid);
+      reply.status(200).send(todo);
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Todo not found") {
+        reply.status(404).send();
+      } else {
+        reply.status(500).send(error);
+      }
+    }
   }
 }
 
@@ -34,11 +45,13 @@ export const setupTodosRoutes = (fastifyInstance: FastifyInstance): void => {
   fastifyInstance.route({
     method: "GET",
     url: "/v1/todos",
-    handler: todosRoutes.listTodos
+    handler: todosRoutes.listTodos,
+    schema: todosRoutesSchemas.listTodosDocSchema
   });
   fastifyInstance.route({
     method: "GET",
     url: "/v1/todos/:todoUuid",
-    handler: todosRoutes.listTodos
+    handler: todosRoutes.getTodo,
+    schema: todosRoutesSchemas.getTodoSchema
   });
 };

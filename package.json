@@ -40,6 +40,8 @@
     "db-migrate-pg": "^1.2.2",
     "dotenv": "^10.0.0",
     "fastify": "^3.19.2",
+    "fastify-cors": "^6.0.2",
+    "fastify-swagger": "^4.8.3",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "node-cache": "^5.1.2",
