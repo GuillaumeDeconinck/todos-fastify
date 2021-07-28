@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { container, inject, singleton } from "tsyringe";
 import { TodosAppService } from "../../../application/services/todosAppService";
+import { todosRoutesSchemas } from "./docsSchemas";
 
 @singleton()
 class TodosRoutes {
@@ -34,11 +35,13 @@ export const setupTodosRoutes = (fastifyInstance: FastifyInstance): void => {
   fastifyInstance.route({
     method: "GET",
     url: "/v1/todos",
-    handler: todosRoutes.listTodos
+    handler: todosRoutes.listTodos,
+    schema: todosRoutesSchemas.listTodosDocSchema
   });
   fastifyInstance.route({
     method: "GET",
     url: "/v1/todos/:todoUuid",
-    handler: todosRoutes.listTodos
+    handler: todosRoutes.getTodo,
+    schema: todosRoutesSchemas.getTodoSchema
   });
 };
