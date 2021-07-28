@@ -24,8 +24,18 @@ class TodosRoutes {
     const ownerUuid = request.query["ownerUuid"];
 
     const todoUuid = request.params["todoUuid"];
-    const todo = await this.todosAppService.getTodo(ownerUuid, todoUuid);
-    reply.status(200).send(todo);
+
+    try {
+      const todo = await this.todosAppService.getTodo(ownerUuid, todoUuid);
+      reply.status(200).send(todo);
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Todo not found") {
+        reply.status(404).send();
+      } else {
+        reply.status(500).send(error);
+      }
+    }
   }
 }
 
