@@ -36,6 +36,7 @@ Moreover, the `src` folder is divided as follows (not in alphabetical order):
 | `application`    | Services doing the link between REST and domain (not really useful right now) |
 | `domain`         | The models and repositories' interfaces, that's where the logic should be     |
 | `infrastructure` | All the repositories implementations, e.g. Postgres                           |
+| `tools`          | Utilities files such as env vars, logger & maintenance stuff                  |
 
 > Technically `rest` could be in `infrastructure`
 

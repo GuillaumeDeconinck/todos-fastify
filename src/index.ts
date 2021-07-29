@@ -4,6 +4,7 @@ import { AppConfiguration } from "./tools/config";
 import { Logger } from "./tools/logger";
 import { RestServer } from "./rest";
 import { PostgresPool } from "./infrastructure/postgres";
+import { Maintenance } from "./tools/maintenance";
 
 (async () => {
   try {
@@ -12,6 +13,10 @@ import { PostgresPool } from "./infrastructure/postgres";
 
     const logger = container.resolve(Logger).logger;
     logger.info("[STARTUP] Config loaded and logger configured");
+
+    const maintenance = container.resolve(Maintenance);
+    maintenance.setupSignalHandler();
+    logger.info("[STARTUP] Maintenance handler initialized");
 
     // Connect to PGSQL
     const pgPool = container.resolve(PostgresPool);
