@@ -34,10 +34,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    test:
-                      type: string
+                  $ref: "#/components/schemas/todo"
               example:
                 - uuid: 3d780d09-c520-4817-b430-ce849bcc5423
                   ownerUuid: 535d6711-2ec0-4ba7-9f34-3d13f25de822
@@ -68,18 +65,37 @@ paths:
           content:
             "application/json":
               schema:
-                type: object
-                properties:
-                  uuid:
-                    type: string
-                  ownerUuid:
-                    type: string
-                  title:
-                    type: string
-                  state:
-                    type: string
-                example:
-                  uuid: 3d780d09-c520-4817-b430-ce849bcc5423
-                  ownerUuid: 535d6711-2ec0-4ba7-9f34-3d13f25de822
-                  title: Groceries
-                  state: ACTIVE
+                $ref: "#/components/schemas/todo"
+components:
+  schemas:
+    todo:
+      type: object
+      properties:
+        uuid:
+          description: The unique identifier of this todo
+          type: string
+        ownerUuid:
+          description: The unique identifier of the owner of this todo
+          type: string
+        title:
+          description: The title/short summary of this todo
+          type: string
+        state:
+          description: The current state of this todo
+          type: string
+          enum:
+            - "ACTIVE"
+            - "COMPLETED"
+            - "DELETED"
+        description:
+          description: The lengthy description of this todo
+          type: string
+      required:
+        - "ownerUuid"
+        - "title"
+        - "state"
+      example:
+        uuid: 3d780d09-c520-4817-b430-ce849bcc5423
+        ownerUuid: 535d6711-2ec0-4ba7-9f34-3d13f25de822
+        title: Groceries
+        state: ACTIVE
