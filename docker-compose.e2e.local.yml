@@ -14,10 +14,11 @@ services:
       PG_USER: root
       PG_PASS: root
       PG_DB: todos
-    command: 'sh -c "/wait && npx nodemon -w src -w openapi.yaml src/index.ts"'
+    command: 'sh -c "/wait && npx nodemon -w src -w openapi.yaml -w static src/index.ts"'
     volumes:
       - ./src:/app/src
       - ./openapi.yaml:/app/openapi.yaml
+      - ./static:/app/static
     links:
       - postgres
   tests-runner:

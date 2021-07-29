@@ -1,6 +1,7 @@
 import fastify, { FastifyInstance } from "fastify";
 import fastifyCors, { FastifyCorsOptions } from "fastify-cors";
 import fastifyOpenApiGlue, { FastifyOpenapiGlueOptions } from "fastify-openapi-glue";
+import fastifyStatic from "fastify-static";
 import fastifySwagger from "fastify-swagger";
 import path from "path";
 import { container, inject, singleton } from "tsyringe";
@@ -28,12 +29,14 @@ export class RestServer {
 
     // Global middlewares
     this.fastifyInstance.register(fastifyCors, corsOptions);
+
+    // Swagger / OpenAPI
     this.fastifyInstance.register(fastifySwagger, {
       routePrefix: "/docs",
       mode: "static",
       specification: {
         path: "openapi.yaml",
-        baseDir: __dirname
+        baseDir: process.cwd()
       },
       uiConfig: {
         docExpansion: "full",
@@ -49,6 +52,11 @@ export class RestServer {
       noAdditional: false
     };
     this.fastifyInstance.register(fastifyOpenApiGlue, openapiGlueOptions);
+
+    // Base html file for root path (just to avoid a ugly 404)
+    this.fastifyInstance.register(fastifyStatic, {
+      root: path.join(process.cwd(), "static")
+    });
 
     // Start server
     const port = this.config.getAppConfig().apiPort;

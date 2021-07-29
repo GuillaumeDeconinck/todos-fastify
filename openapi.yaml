@@ -4,6 +4,8 @@ info:
   description: Documentation of a simple Todos API
   version: 0.0.1
 servers:
+  - url: https://soryo-fastify-todo.herokuapp.com
+    description: Production
   - url: localhost
     description: Development server
 tags:
