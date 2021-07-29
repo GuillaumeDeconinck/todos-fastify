@@ -10,8 +10,13 @@ services:
     environment:
       WAIT_HOSTS: postgres:5432
       NODE_ENV: development
-    command: 'sh -c "/wait && npx nodemon src/index.ts"'
+      PG_HOST: postgres
+      PG_USER: root
+      PG_PASS: root
+      PG_DB: todos
+    command: 'sh -c "/wait && npx nodemon -w src -w openapi.yaml src/index.ts"'
     volumes:
       - ./src:/app/src
+      - ./openapi.yaml:/app/openapi.yaml
     links:
       - postgres
