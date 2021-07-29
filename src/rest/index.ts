@@ -39,7 +39,6 @@ export class RestServer {
         baseDir: process.cwd()
       },
       uiConfig: {
-        docExpansion: "full",
         deepLinking: false,
         tryItOutEnabled: false
       },
