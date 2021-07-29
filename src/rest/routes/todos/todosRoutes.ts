@@ -1,10 +1,9 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { container, inject, singleton } from "tsyringe";
+import { FastifyReply, FastifyRequest } from "fastify";
+import { inject, singleton } from "tsyringe";
 import { TodosAppService } from "../../../application/services/todosAppService";
-import { todosRoutesSchemas } from "./docsSchemas";
 
 @singleton()
-class TodosRoutes {
+export class TodosRoutes {
   constructor(@inject(TodosAppService) private todosAppService: TodosAppService) {
     // `this` scope is lost when methods are called by Fastify
     this.listTodos = this.listTodos.bind(this);
@@ -38,20 +37,3 @@ class TodosRoutes {
     }
   }
 }
-
-export const setupTodosRoutes = (fastifyInstance: FastifyInstance): void => {
-  const todosRoutes = container.resolve(TodosRoutes);
-
-  fastifyInstance.route({
-    method: "GET",
-    url: "/v1/todos",
-    handler: todosRoutes.listTodos,
-    schema: todosRoutesSchemas.listTodosDocSchema
-  });
-  fastifyInstance.route({
-    method: "GET",
-    url: "/v1/todos/:todoUuid",
-    handler: todosRoutes.getTodo,
-    schema: todosRoutesSchemas.getTodoSchema
-  });
-};

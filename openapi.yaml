@@ -1,0 +1,85 @@
+openapi: "3.0.2"
+info:
+  title: Todos API
+  description: Documentation of a simple Todos API
+  version: 0.0.1
+servers:
+  - url: localhost
+    description: Development server
+tags:
+  - name: todo
+    description: Todo related end-points
+  - name: tag
+    description: Tag related end-points
+
+paths:
+  /v1/todos:
+    get:
+      summary: List all the todos
+      description: List all the todos of the user provided in the query parameters
+      operationId: listTodos
+      tags:
+        - todo
+      parameters:
+        - name: ownerUuid
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    test:
+                      type: string
+              example:
+                - uuid: 3d780d09-c520-4817-b430-ce849bcc5423
+                  ownerUuid: 535d6711-2ec0-4ba7-9f34-3d13f25de822
+                  title: Groceries
+                  state: ACTIVE
+
+  /v1/todos/{todoUuid}:
+    get:
+      summary: Get a specific todo
+      description: Get a specific todo by providing its uuid
+      operationId: getTodo
+      tags:
+        - todo
+      parameters:
+        - name: ownerUuid
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: todoUuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                  ownerUuid:
+                    type: string
+                  title:
+                    type: string
+                  state:
+                    type: string
+                example:
+                  uuid: 3d780d09-c520-4817-b430-ce849bcc5423
+                  ownerUuid: 535d6711-2ec0-4ba7-9f34-3d13f25de822
+                  title: Groceries
+                  state: ACTIVE
