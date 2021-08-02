@@ -2,7 +2,7 @@ openapi: "3.0.2"
 info:
   title: Todos API
   description: Documentation of a simple Todos API
-  version: 0.0.1
+  version: 0.0.2
 servers:
   - url: https://soryo-fastify-todo.herokuapp.com
     description: Production
@@ -44,6 +44,12 @@ paths:
                   ownerUuid: 535d6711-2ec0-4ba7-9f34-3d13f25de822
                   title: Groceries
                   state: ACTIVE
+        "400":
+          description: Request badly formatted
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/error"
     post:
       summary: Create a new todo
       description: Create a new todo
@@ -63,6 +69,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/todo"
+        "400":
+          description: Request badly formatted
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/error"
 
   /v1/todos/{todoUuid}:
     get:
@@ -91,6 +103,12 @@ paths:
                 $ref: "#/components/schemas/todo"
         "404":
           description: Couldn't find the todo with the provided uuid
+        "400":
+          description: Request badly formatted
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/error"
     put:
       summary: Update a todo
       description: Update a todo by providing its uuid and the updated todo content
@@ -121,6 +139,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/todo"
+        "400":
+          description: Request badly formatted
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/error"
     delete:
       summary: Delete a todo
       description: Delete a todo by providing its uuid
@@ -139,12 +163,14 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        "204":
           description: Successful response
+        "400":
+          description: Request badly formatted
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/todo"
+                $ref: "#/components/schemas/error"
 
   /ready:
     get:
@@ -174,16 +200,16 @@ components:
       type: object
       properties:
         uuid:
-          description: The unique identifier of this todo
+          description: Unique identifier of the todo
           type: string
         ownerUuid:
-          description: The unique identifier of the owner of this todo
+          description: Unique identifier of the owner of the todo
           type: string
         title:
-          description: The title/short summary of this todo
+          description: Title/short summary of the todo
           type: string
         state:
-          description: The current state of this todo
+          description: State of the todo
           type: string
           enum:
             - "ACTIVE"
@@ -202,3 +228,19 @@ components:
         ownerUuid: 535d6711-2ec0-4ba7-9f34-3d13f25de822
         title: Groceries
         state: ACTIVE
+    error:
+      type: object
+      properties:
+        statusCode:
+          description: Status code of the response
+          type: number
+        error:
+          description: Name of the error
+          type: string
+        message:
+          description: Explanation of the error
+          type: string
+      example:
+        statusCode: 400
+        error: "Bad Request"
+        message: "querystring must have required property 'ownerUuid'"
