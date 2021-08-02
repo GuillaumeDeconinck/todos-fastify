@@ -27,12 +27,12 @@ paths:
       parameters:
         - name: ownerUuid
           in: query
-          required: false
+          required: true
           schema:
             type: string
       responses:
         "200":
-          description: Successful response
+          description: Successfully retrieved all the todos
           content:
             "application/json":
               schema:
@@ -44,18 +44,93 @@ paths:
                   ownerUuid: 535d6711-2ec0-4ba7-9f34-3d13f25de822
                   title: Groceries
                   state: ACTIVE
+    post:
+      summary: Create a new todo
+      description: Create a new todo
+      operationId: createTodo
+      tags:
+        - todo
+      requestBody:
+        description: New todo payload
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/todo"
+      responses:
+        "200":
+          description: Successfully created a new todo
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/todo"
 
   /v1/todos/{todoUuid}:
     get:
-      summary: Get a specific todo
-      description: Get a specific todo by providing its uuid
+      summary: Get a todo
+      description: Get a todo by providing its uuid
       operationId: getTodo
       tags:
         - todo
       parameters:
         - name: ownerUuid
           in: query
-          required: false
+          required: true
+          schema:
+            type: string
+        - name: todoUuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieved the todo
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/todo"
+        "404":
+          description: Couldn't find the todo with the provided uuid
+    put:
+      summary: Update a todo
+      description: Update a todo by providing its uuid and the updated todo content
+      operationId: updateTodo
+      tags:
+        - todo
+      parameters:
+        - name: ownerUuid
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: todoUuid
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        description: New todo payload
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/todo"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/todo"
+    delete:
+      summary: Delete a todo
+      description: Delete a todo by providing its uuid
+      operationId: deleteTodo
+      tags:
+        - todo
+      parameters:
+        - name: ownerUuid
+          in: query
+          required: true
           schema:
             type: string
         - name: todoUuid
@@ -70,6 +145,7 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/todo"
+
   /ready:
     get:
       summary: Get the readiness of the service
@@ -117,6 +193,7 @@ components:
           description: The lengthy description of this todo
           type: string
       required:
+        - uuid
         - "ownerUuid"
         - "title"
         - "state"
