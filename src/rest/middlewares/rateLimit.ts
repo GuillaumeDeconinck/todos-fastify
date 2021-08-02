@@ -38,7 +38,7 @@ export class RateLimitMiddleware {
     }
   }
 
-  private extractIp(request: FastifyRequest) {
+  private extractIp(request: FastifyRequest): string {
     return (request.headers["x-forwarded-for"] as string)?.split(",").shift() || request.socket?.remoteAddress;
   }
 }
