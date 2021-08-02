@@ -27,6 +27,9 @@ import { Maintenance } from "./tools/maintenance";
     const restServer = container.resolve(RestServer);
     await restServer.setupRest();
     logger.info(`[STARTUP] Rest server started on port ${appConfiguration.getAppConfig().apiPort}`);
+
+    // Set the service as ready
+    maintenance.setIsReady(true);
   } catch (error) {
     try {
       const logger = container.resolve(Logger).logger;

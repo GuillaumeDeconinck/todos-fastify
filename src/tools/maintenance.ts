@@ -1,4 +1,4 @@
-import { inject, singleton } from "tsyringe";
+import { delay, inject, singleton } from "tsyringe";
 import { PostgresPool } from "../infrastructure/postgres";
 import { RestServer } from "../rest";
 import { Logger } from "./logger";
@@ -10,16 +10,17 @@ const GRACE_TIMEOUT = 5000;
 
 @singleton()
 export class Maintenance {
-  private isHealthy: boolean;
   private isReady: boolean;
+  private isHealthy: boolean;
 
   constructor(
     @inject(Logger) private logger: Logger,
-    @inject(RestServer) private restServer: RestServer,
-    @inject(PostgresPool) private pgPool: PostgresPool
+    @inject(delay(() => RestServer)) private restServer: RestServer,
+    @inject(delay(() => PostgresPool)) private pgPool: PostgresPool
   ) {
-    this.isHealthy = false;
     this.isReady = false;
+    // TODO: reswitch to false at startup
+    this.isHealthy = true;
 
     this.signalHandler = this.signalHandler.bind(this);
   }
@@ -32,6 +33,7 @@ export class Maintenance {
     return this.isReady;
   }
 
+  // TODO: currently not used
   setIsHealthy(isHealthy: boolean): void {
     this.isHealthy = isHealthy;
   }

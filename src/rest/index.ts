@@ -7,6 +7,7 @@ import path from "path";
 import { container, inject, singleton } from "tsyringe";
 import { AppConfiguration } from "../tools/config";
 import { Logger } from "../tools/logger";
+import { HealthcheckRoutes } from "./routes/healthcheck/healthcheckRoutes";
 import { TodosRoutes } from "./routes/todos/todosRoutes";
 
 const corsOptions: FastifyCorsOptions = {
@@ -45,9 +46,12 @@ export class RestServer {
       exposeRoute: true
     });
 
+    // Merge services together to pass it to OepnAPIGlue
+    const services = { ...container.resolve(TodosRoutes), ...container.resolve(HealthcheckRoutes) };
+
     const openapiGlueOptions: FastifyOpenapiGlueOptions = {
       specification: "openapi.yaml",
-      service: container.resolve(TodosRoutes),
+      service: services,
       noAdditional: false
     };
     this.fastifyInstance.register(fastifyOpenApiGlue, openapiGlueOptions);

@@ -13,6 +13,8 @@ tags:
     description: Todo related end-points
   - name: tag
     description: Tag related end-points
+  - name: healthcheck
+    description: Tag for internal healthcheck routes
 
 paths:
   /v1/todos:
@@ -68,6 +70,28 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/todo"
+  /ready:
+    get:
+      summary: Get the readiness of the service
+      operationId: isReady
+      tags:
+        - healthcheck
+      responses:
+        "200":
+          description: Service is ready
+        "503":
+          description: Service isn't ready yet
+  /healthy:
+    get:
+      summary: Get the healthiness of the service
+      operationId: isHealthy
+      tags:
+        - healthcheck
+      responses:
+        "200":
+          description: Service is healthy
+        "503":
+          description: Service isn't healthy
 components:
   schemas:
     todo:
