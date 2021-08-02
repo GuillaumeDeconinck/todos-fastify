@@ -33,7 +33,7 @@ export class RateLimitMiddleware {
     if (counter > this.configuration.getAppConfig().apiMaxRequestsPerTTL) {
       this.logger.logger.error(`IP ${externalIP} is sending too many requests`);
       const error = new Error("Rate limited");
-      reply.status(403).send(error);
+      reply.status(429).send(error);
       throw error;
     }
   }
