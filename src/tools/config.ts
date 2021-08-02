@@ -9,6 +9,7 @@ interface AppConfig {
   apiJWTPublic: string;
   apiJWTIss: string;
   apiRateLimitTTL: number;
+  apiMaxRequestsPerTTL: number;
 }
 
 interface PGConfig {
@@ -38,7 +39,8 @@ export class AppConfiguration {
       API_PORT: "9002",
       API_JWT_PUBLIC: "",
       API_JWT_ISS: "",
-      API_RATE_LIMIT_TTL: "3600",
+      API_RATE_LIMIT_TTL: "60",
+      API_MAX_REQUESTS_PER_TTL: "300",
       PG_HOST: "localhost",
       PG_PORT: "5432",
       PG_USER: "root",
@@ -56,6 +58,7 @@ export class AppConfiguration {
       API_JWT_PUBLIC,
       API_JWT_ISS,
       API_RATE_LIMIT_TTL,
+      API_MAX_REQUESTS_PER_TTL,
       PORT,
       PG_HOST,
       PG_PORT,
@@ -71,7 +74,8 @@ export class AppConfiguration {
       apiPort: parseInt(PORT || API_PORT, 10),
       apiJWTPublic: API_JWT_PUBLIC ? Buffer.from(API_JWT_PUBLIC, "base64").toString("utf-8") : API_JWT_PUBLIC,
       apiJWTIss: API_JWT_ISS,
-      apiRateLimitTTL: parseInt(API_RATE_LIMIT_TTL, 10)
+      apiRateLimitTTL: parseInt(API_RATE_LIMIT_TTL, 10),
+      apiMaxRequestsPerTTL: parseInt(API_MAX_REQUESTS_PER_TTL, 10)
     };
 
     this.pgConfig = {
