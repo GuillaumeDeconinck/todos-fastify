@@ -27,7 +27,7 @@ paths:
       parameters:
         - name: ownerUuid
           in: query
-          required: false
+          required: true
           schema:
             type: string
       responses:
@@ -74,7 +74,7 @@ paths:
       parameters:
         - name: ownerUuid
           in: query
-          required: false
+          required: true
           schema:
             type: string
         - name: todoUuid
@@ -100,7 +100,7 @@ paths:
       parameters:
         - name: ownerUuid
           in: query
-          required: false
+          required: true
           schema:
             type: string
         - name: todoUuid
@@ -130,7 +130,7 @@ paths:
       parameters:
         - name: ownerUuid
           in: query
-          required: false
+          required: true
           schema:
             type: string
         - name: todoUuid
