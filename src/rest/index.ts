@@ -7,6 +7,7 @@ import path from "path";
 import { container, inject, singleton } from "tsyringe";
 import { AppConfiguration } from "../tools/config";
 import { Logger } from "../tools/logger";
+import { RateLimitMiddleware } from "./middlewares/rateLimit";
 import { HealthcheckRoutes } from "./routes/healthcheck/healthcheckRoutes";
 import { TodosRoutes } from "./routes/todos/todosRoutes";
 
@@ -30,6 +31,9 @@ export class RestServer {
 
     // Global middlewares
     this.fastifyInstance.register(fastifyCors, corsOptions);
+
+    // Rate limit
+    this.fastifyInstance.addHook("preHandler", container.resolve(RateLimitMiddleware).applyRateLimit);
 
     // Swagger / OpenAPI
     this.fastifyInstance.register(fastifySwagger, {
