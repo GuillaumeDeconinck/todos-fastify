@@ -13,6 +13,8 @@ tags:
     description: Todo related end-points
   - name: tag
     description: Tag related end-points
+  - name: healthcheck
+    description: Tag for internal healthcheck routes
 
 paths:
   /v1/todos:
@@ -82,7 +84,7 @@ paths:
   /healthy:
     get:
       summary: Get the healthiness of the service
-      operationId: isReady
+      operationId: isHealthy
       tags:
         - healthcheck
       responses:
