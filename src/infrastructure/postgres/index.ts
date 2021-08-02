@@ -56,8 +56,7 @@ export class PostgresPool {
 
   async executeQuery<T>(queryName: string, query: string, params: unknown[]): Promise<T[]> {
     try {
-      const client = await this.getClient();
-      const result = await client.query(query, params);
+      const result = await this.pool.query(query, params);
       return result.rows;
     } catch (error) {
       this.logger.logger.error(`[PGSQL] Error while executing ${queryName}`);
