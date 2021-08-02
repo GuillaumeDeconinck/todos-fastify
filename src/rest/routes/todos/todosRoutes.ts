@@ -36,4 +36,46 @@ export class TodosRoutes {
       }
     }
   }
+
+  async createTodo(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    // try {
+    //   const todo = await this.todosAppService.getTodo(ownerUuid, todoUuid);
+    //   reply.status(200).send(todo);
+    // } catch (error) {
+    //   console.log(error);
+    //   if (error.message === "Todo not found") {
+    //     reply.status(404).send();
+    //   } else {
+    //     reply.status(500).send(error);
+    //   }
+    // }
+  }
+
+  async updateTodo(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    // try {
+    //   const todo = await this.todosAppService.getTodo(ownerUuid, todoUuid);
+    //   reply.status(200).send(todo);
+    // } catch (error) {
+    //   console.log(error);
+    //   if (error.message === "Todo not found") {
+    //     reply.status(404).send();
+    //   } else {
+    //     reply.status(500).send(error);
+    //   }
+    // }
+  }
+
+  async deleteTodo(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    // try {
+    //   const todo = await this.todosAppService.getTodo(ownerUuid, todoUuid);
+    //   reply.status(200).send(todo);
+    // } catch (error) {
+    //   console.log(error);
+    //   if (error.message === "Todo not found") {
+    //     reply.status(404).send();
+    //   } else {
+    //     reply.status(500).send(error);
+    //   }
+    // }
+  }
 }
