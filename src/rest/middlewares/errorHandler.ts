@@ -10,7 +10,7 @@ export class ErrorHandlerMiddleware {
     this.handleError = this.handleError.bind(this);
   }
 
-  async handleError(
+  handleError(
     error: Error | HttpError | ApplicationError,
     _req: FastifyRequest,
     reply: FastifyReply
