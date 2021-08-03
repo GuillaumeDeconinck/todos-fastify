@@ -28,26 +28,14 @@ export class TodosRoutes {
     // Will come from the JWT
     const ownerUuid = request.query["ownerUuid"];
 
-    try {
-      const todo = await this.todosAppService.getTodo(todoUuid, ownerUuid);
-      reply.status(200).send(todo);
-    } catch (error) {
-      if (error.message === "Todo not found") {
-        reply.status(404).send();
-      } else {
-        reply.status(500).send(error);
-      }
-    }
+    const todo = await this.todosAppService.getTodo(todoUuid, ownerUuid);
+    reply.status(200).send(todo);
   }
 
   async createTodo(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     const todoToCreate = request.body as Todo;
-    try {
-      const todo = await this.todosAppService.createTodo(todoToCreate);
-      reply.status(200).send(todo);
-    } catch (error) {
-      reply.status(500).send(error);
-    }
+    const todo = await this.todosAppService.createTodo(todoToCreate);
+    reply.status(200).send(todo);
   }
 
   async updateTodo(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -57,16 +45,8 @@ export class TodosRoutes {
     const ownerUuid = request.query["ownerUuid"];
 
     const todoToCreate = request.body as Todo;
-    try {
-      const todo = await this.todosAppService.updateTodo(todoUuid, ownerUuid, todoToCreate);
-      reply.status(200).send(todo);
-    } catch (error) {
-      if (error.message === "Todo not found") {
-        reply.status(404).send();
-      } else {
-        reply.status(500).send(error);
-      }
-    }
+    const todo = await this.todosAppService.updateTodo(todoUuid, ownerUuid, todoToCreate);
+    reply.status(200).send(todo);
   }
 
   async deleteTodo(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -78,15 +58,7 @@ export class TodosRoutes {
     // Hard delete flag
     const hardDelete = request.query["hard"] === "true" || request.query["hard"] === true;
 
-    try {
-      await this.todosAppService.deleteTodo(todoUuid, ownerUuid, hardDelete);
-      reply.status(204).send();
-    } catch (error) {
-      if (error.message === "Todo not found") {
-        reply.status(404).send();
-      } else {
-        reply.status(500).send(error);
-      }
-    }
+    await this.todosAppService.deleteTodo(todoUuid, ownerUuid, hardDelete);
+    reply.status(204).send();
   }
 }

@@ -1,5 +1,6 @@
 import { delay, inject, injectable, registry, singleton } from "tsyringe";
 import { PostgresPool } from "..";
+import { ApplicationError, ApplicationErrorType } from "../../../application/errors/ApplicationError";
 import { Todo } from "../../../domain/models/Todo";
 import { TodosRepository } from "../../../domain/repositories/todos.repository";
 import { todosQueries } from "./queries";
@@ -20,11 +21,12 @@ export class TodosDaoService implements TodosRepository {
     const result = await this.pool.executeQuery<Todo>("getTodo", todosQueries.getTodo, [todoUuid, ownerUuid]);
 
     if (result.length === 0) {
-      throw new Error("Todo not found");
+      throw new ApplicationError("Todo not found", ApplicationErrorType.NOT_FOUND);
     }
 
+    // Technically, in production it could be preferable to be warned with a log, while still answering the request correctly
     if (result.length > 1) {
-      throw new Error("Found more than 1 todos");
+      throw new ApplicationError("Found more than 1 todos", ApplicationErrorType.INTERNAL_SERVER_ERROR);
     }
 
     return result[0];
@@ -38,11 +40,14 @@ export class TodosDaoService implements TodosRepository {
       []
     );
     if (totalCountResult.length === 0) {
-      throw new Error("Error while retrieving the total count of todos");
+      throw new ApplicationError(
+        "Error while retrieving the total count of todos",
+        ApplicationErrorType.INTERNAL_SERVER_ERROR
+      );
     }
     const totalCount = totalCountResult[0].totalCount;
     if (totalCount >= 1000) {
-      throw new Error("Error, DB already full of todos");
+      throw new ApplicationError("Error, DB already full of todos", ApplicationErrorType.INTERNAL_SERVER_ERROR);
     }
 
     // Actual query for adding a todo
@@ -50,10 +55,11 @@ export class TodosDaoService implements TodosRepository {
     const result = await this.pool.executeQuery<Todo>("createTodo", todosQueries.createTodo, params);
 
     if (result.length === 0) {
-      throw new Error("Error while creating a new todo");
+      throw new ApplicationError("Error while creating a new todo", ApplicationErrorType.INTERNAL_SERVER_ERROR);
     }
+    // Technically, in production it could be preferable to be warned with a log, while still answering the request correctly
     if (result.length > 1) {
-      throw new Error("Created more than 1 todos");
+      throw new ApplicationError("Created more than 1 todos", ApplicationErrorType.INTERNAL_SERVER_ERROR);
     }
 
     return result[0];
@@ -65,11 +71,12 @@ export class TodosDaoService implements TodosRepository {
     const result = await this.pool.executeQuery<Todo>("updateTodo", todosQueries.updateTodo, params);
 
     if (result.length === 0) {
-      throw new Error("Todo not found");
+      throw new ApplicationError("Todo not found", ApplicationErrorType.NOT_FOUND);
     }
 
+    // Technically, in production it could be preferable to be warned with a log, while still answering the request correctly
     if (result.length > 1) {
-      throw new Error("Updated more than 1 todos");
+      throw new ApplicationError("Updated more than 1 todos", ApplicationErrorType.INTERNAL_SERVER_ERROR);
     }
 
     return result[0];

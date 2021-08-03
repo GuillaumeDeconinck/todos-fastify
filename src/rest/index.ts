@@ -7,6 +7,7 @@ import path from "path";
 import { container, inject, singleton } from "tsyringe";
 import { AppConfiguration } from "../tools/config";
 import { Logger } from "../tools/logger";
+import { ErrorHandlerMiddleware } from "./middlewares/errorHandler";
 import { RateLimitMiddleware } from "./middlewares/rateLimit";
 import { HealthcheckRoutes } from "./routes/healthcheck/healthcheckRoutes";
 import { TodosRoutes } from "./routes/todos/todosRoutes";
@@ -28,6 +29,7 @@ export class RestServer {
   async setupRest(): Promise<void> {
     // Disable logger because we want to avoid the default log of `.listen(...)`
     this.fastifyInstance = fastify({ logger: false });
+    this.fastifyInstance.setErrorHandler(container.resolve(ErrorHandlerMiddleware).handleError);
 
     // Global middlewares
     this.fastifyInstance.register(fastifyCors, corsOptions);
