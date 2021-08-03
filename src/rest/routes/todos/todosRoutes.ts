@@ -75,8 +75,11 @@ export class TodosRoutes {
     // Will come from the JWT
     const ownerUuid = request.query["ownerUuid"];
 
+    // Hard delete flag
+    const hardDelete = request.query["hard"] === "true" || request.query["hard"] === true;
+
     try {
-      await this.todosAppService.deleteTodo(todoUuid, ownerUuid);
+      await this.todosAppService.deleteTodo(todoUuid, ownerUuid, hardDelete);
       reply.status(204).send();
     } catch (error) {
       if (error.message === "Todo not found") {
