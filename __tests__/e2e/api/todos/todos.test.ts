@@ -127,13 +127,50 @@ describe("Testing the todos API", () => {
     expect(response.body).toEqual(expect.objectContaining(todoToUpdate));
   });
 
-  // Cleanup
+  // Soft delete
 
   it("should delete the newly created todo ", async () => {
     const response = await got<Todo>(`${API_URL}/v1/todos/${todoToCreate.uuid}`, {
       method: "DELETE",
       searchParams: {
         ownerUuid: todoToCreate.ownerUuid
+      },
+      responseType: "json",
+      retry: 0,
+      throwHttpErrors: false
+    });
+
+    expect(response.statusCode).toBe(204);
+  });
+
+  it("should return a 404 when retrieving a single todo, as it has been deleted now", async () => {
+    const response = await got<Todo>(`${API_URL}/v1/todos/${todoToCreate.uuid}`, {
+      method: "GET",
+      searchParams: {
+        ownerUuid: todoToCreate.ownerUuid
+      },
+      responseType: "json",
+      retry: 0,
+      throwHttpErrors: false
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        ...todoToUpdate,
+        state: TodoState.DELETED
+      })
+    );
+  });
+
+  // Cleanup (hard delete)
+
+  it("should delete the newly created todo ", async () => {
+    const response = await got<Todo>(`${API_URL}/v1/todos/${todoToCreate.uuid}`, {
+      method: "DELETE",
+      searchParams: {
+        ownerUuid: todoToCreate.ownerUuid,
+        hard: true
       },
       responseType: "json",
       retry: 0,
