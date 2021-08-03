@@ -10,11 +10,7 @@ export class ErrorHandlerMiddleware {
     this.handleError = this.handleError.bind(this);
   }
 
-  handleError(
-    error: Error | HttpError | ApplicationError,
-    _req: FastifyRequest,
-    reply: FastifyReply
-  ): Promise<void> {
+  handleError(error: Error | HttpError | ApplicationError, _req: FastifyRequest, reply: FastifyReply): void {
     this.logger.logger.error(error);
     let httpError: HttpError;
     if (error instanceof HttpError) {
