@@ -146,16 +146,23 @@ paths:
       tags:
         - todo
       parameters:
-        - name: ownerUuid
-          in: query
-          required: true
-          schema:
-            type: string
         - name: todoUuid
           required: true
           in: path
           schema:
             type: string
+        - name: ownerUuid
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: hard
+          description: >
+            Defines if the deletion is a "hard" delete (true) or a "soft" delete (false or not present)
+          in: query
+          required: false
+          schema:
+            type: boolean
       responses:
         "204":
           description: Successful response
