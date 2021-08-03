@@ -45,5 +45,9 @@ export const todosQueries = {
   deleteTodo: `
     DELETE FROM todos
     WHERE uuid = $1 AND owner_uuid = $2;
+  `,
+  countTotalTodosCrossOwner: `
+    SELECT COUNT(uuid) AS "totalCount"
+    FROM todos;
   `
 };

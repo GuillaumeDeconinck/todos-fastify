@@ -31,14 +31,27 @@ export class TodosDaoService implements TodosRepository {
   }
 
   async createTodo(todo: Todo): Promise<Todo> {
-    const params = [todo.uuid, todo.ownerUuid, todo.state, todo.title, todo.description];
+    // Check for Heroku, a real prod app won't have this (or would have a "per account" check)
+    const totalCountResult = await this.pool.executeQuery<{ totalCount: number }>(
+      "countTotalTodosCrossOwner",
+      todosQueries.countTotalTodosCrossOwner,
+      []
+    );
+    if (totalCountResult.length === 0) {
+      throw new Error("Error while retrieving the total count of todos");
+    }
+    const totalCount = totalCountResult[0].totalCount;
+    if (totalCount >= 1000) {
+      throw new Error("Error, DB already full of todos");
+    }
 
+    // Actual query for adding a todo
+    const params = [todo.uuid, todo.ownerUuid, todo.state, todo.title, todo.description];
     const result = await this.pool.executeQuery<Todo>("createTodo", todosQueries.createTodo, params);
 
     if (result.length === 0) {
       throw new Error("Error while creating a new todo");
     }
-
     if (result.length > 1) {
       throw new Error("Created more than 1 todos");
     }
