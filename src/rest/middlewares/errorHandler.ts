@@ -6,11 +6,9 @@ import { HttpError } from "../errors/HttpError";
 
 @singleton()
 export class ErrorHandlerMiddleware {
-  constructor(@inject(Logger) private logger: Logger) {
-    this.handleError = this.handleError.bind(this);
-  }
+  constructor(@inject(Logger) private logger: Logger) {}
 
-  handleError(error: Error | HttpError | ApplicationError, _req: FastifyRequest, reply: FastifyReply): void {
+  handleError = (error: Error | HttpError | ApplicationError, _req: FastifyRequest, reply: FastifyReply): void => {
     this.logger.logger.error(error);
     let httpError: HttpError;
     if (error instanceof HttpError) {
@@ -22,5 +20,5 @@ export class ErrorHandlerMiddleware {
     }
     const errorToSend = httpError.toExposedError();
     reply.code(errorToSend.statusCode).send(errorToSend);
-  }
+  };
 }
