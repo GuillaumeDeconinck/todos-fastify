@@ -5,24 +5,17 @@ import { Todo } from "../../../domain/models/Todo";
 
 @singleton()
 export class TodosRoutes {
-  constructor(@inject(TodosAppService) private todosAppService: TodosAppService) {
-    // `this` scope is lost when methods are called by Fastify
-    this.listTodos = this.listTodos.bind(this);
-    this.getTodo = this.getTodo.bind(this);
-    this.createTodo = this.createTodo.bind(this);
-    this.updateTodo = this.updateTodo.bind(this);
-    this.deleteTodo = this.deleteTodo.bind(this);
-  }
+  constructor(@inject(TodosAppService) private todosAppService: TodosAppService) {}
 
-  async listTodos(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  listTodos = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     // Will come from the JWT
     const ownerUuid = request.query["ownerUuid"];
 
     const todos = await this.todosAppService.listTodos(ownerUuid);
     reply.status(200).send(todos);
-  }
+  };
 
-  async getTodo(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  getTodo = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const todoUuid = request.params["todoUuid"];
 
     // Will come from the JWT
@@ -30,15 +23,15 @@ export class TodosRoutes {
 
     const todo = await this.todosAppService.getTodo(todoUuid, ownerUuid);
     reply.status(200).send(todo);
-  }
+  };
 
-  async createTodo(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  createTodo = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const todoToCreate = request.body as Todo;
     const todo = await this.todosAppService.createTodo(todoToCreate);
     reply.status(200).send(todo);
-  }
+  };
 
-  async updateTodo(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  updateTodo = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const todoUuid = request.params["todoUuid"];
 
     // Will come from the JWT
@@ -47,9 +40,9 @@ export class TodosRoutes {
     const todoToCreate = request.body as Todo;
     const todo = await this.todosAppService.updateTodo(todoUuid, ownerUuid, todoToCreate);
     reply.status(200).send(todo);
-  }
+  };
 
-  async deleteTodo(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  deleteTodo = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const todoUuid = request.params["todoUuid"];
 
     // Will come from the JWT
@@ -60,5 +53,5 @@ export class TodosRoutes {
 
     await this.todosAppService.deleteTodo(todoUuid, ownerUuid, hardDelete);
     reply.status(204).send();
-  }
+  };
 }

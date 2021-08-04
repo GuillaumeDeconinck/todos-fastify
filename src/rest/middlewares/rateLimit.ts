@@ -16,11 +16,9 @@ export class RateLimitMiddleware {
       deleteOnExpire: true,
       maxKeys: 1000
     });
-
-    this.applyRateLimit = this.applyRateLimit.bind(this);
   }
 
-  async applyRateLimit(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  applyRateLimit = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const externalIP = this.extractIp(request);
     if (!externalIP) {
       const error = new Error("Missing IP address");
@@ -36,7 +34,7 @@ export class RateLimitMiddleware {
       reply.status(429).send(error);
       throw error;
     }
-  }
+  };
 
   private extractIp(request: FastifyRequest): string {
     return (request.headers["x-forwarded-for"] as string)?.split(",").shift() || request.socket?.remoteAddress;

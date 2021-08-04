@@ -10,19 +10,19 @@ export class HealthcheckRoutes {
     this.isHealthy = this.isHealthy.bind(this);
   }
 
-  async isReady(_req: FastifyRequest, reply: FastifyReply): Promise<void> {
+  isReady = async (_req: FastifyRequest, reply: FastifyReply): Promise<void> => {
     if (this.maintenance.getIsReady()) {
       reply.status(200).send();
     } else {
       reply.status(503).send();
     }
-  }
+  };
 
-  async isHealthy(_req: FastifyRequest, reply: FastifyReply): Promise<void> {
+  isHealthy = async (_req: FastifyRequest, reply: FastifyReply): Promise<void> => {
     if (this.maintenance.getIsHealthy()) {
       reply.status(200).send();
     } else {
       reply.status(503).send();
     }
-  }
+  };
 }
