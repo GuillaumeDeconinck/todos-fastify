@@ -16,6 +16,7 @@ I want this API to follow a few principles:
 - Properly documented
 - Good error messages, as the happy flow is not the only flow
 
+
 ## Structure of the project
 
 | Folder or file         | Explanation                                                 |
@@ -39,6 +40,8 @@ Moreover, the `src` folder is divided as follows (not in alphabetical order):
 | `tools`          | Utilities files such as env vars, logger & maintenance stuff                  |
 
 > Technically `rest` could be in `infrastructure`
+
+> **This structure can be seen as overkill for the size of this API (as there is only one resource for now)**
 
 ## How to use
 
