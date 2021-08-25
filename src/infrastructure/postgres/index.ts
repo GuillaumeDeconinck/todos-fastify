@@ -1,16 +1,16 @@
-import * as postgres from "pg";
-import DBMigrate from "db-migrate";
 import { inject, injectable, singleton } from "tsyringe";
 import { AppConfiguration } from "../../tools/config";
 import { Logger } from "../../tools/logger";
 // Import the DAOs in order for the @registry to be correctly taken into account
 import "./todos/todos.dao";
+import { Connection, createConnection, EntityTarget, Repository } from "typeorm";
+import { Todo } from "../../domain/models/Todo";
 
 // To be implemented, base class for Postgres
 @singleton()
 @injectable()
 export class PostgresPool {
-  private pool: postgres.Pool;
+  private pool: Connection;
 
   constructor(
     @inject(AppConfiguration) private configuration: AppConfiguration,
@@ -18,40 +18,24 @@ export class PostgresPool {
   ) {}
 
   async connect(): Promise<void> {
-    const config: postgres.PoolConfig = {
+    this.pool = await createConnection({
+      type: "postgres",
       ...this.configuration.getPGConfig(),
-      min: 1,
-      max: 5
-    };
-
-    if (config.ssl) {
-      config.ssl = {
-        rejectUnauthorized: false
-      };
-    }
-
-    this.pool = new postgres.Pool(config);
-
-    // Check if pool works fine
-    const client = await this.pool.connect();
-    await client.query("SELECT NOW()");
-    client.release();
-
-    // Run migrations
-    const dbMigrate = DBMigrate.getInstance(true, {
-      env: "current",
-      config: {
-        current: {
-          driver: "pg",
-          ...config
-        }
-      }
+      entities: [Todo],
+      extra: {
+        connectionLimit: 5
+      },
+      synchronize: true, // Ideally shouldn't be used in prod
+      logging: ["error"]
     });
-    await dbMigrate.up();
   }
 
-  async getClient(): Promise<postgres.PoolClient> {
-    return await this.pool.connect();
+  getClient(): Connection {
+    return this.pool;
+  }
+
+  getRepository<T>(entity: EntityTarget<T>): Repository<T> {
+    return this.pool.getRepository(entity);
   }
 
   async executeQuery<T>(queryName: string, query: string, params: unknown[]): Promise<T[]> {
@@ -67,7 +51,7 @@ export class PostgresPool {
 
   async close(): Promise<void> {
     if (this.pool) {
-      this.pool.end();
+      this.pool.close();
     }
   }
 }
