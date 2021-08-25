@@ -1,10 +1,9 @@
-FROM node:16-slim AS base
+FROM node:14-slim AS base
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
-
 
 FROM base AS dev
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
@@ -17,7 +16,7 @@ COPY ./ ./
 RUN npm run build
 RUN npm ci --production
 
-FROM node:16-slim AS production
+FROM node:14-slim AS production
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY --from=build /app/node_modules ./node_modules
