@@ -3,8 +3,6 @@ import { PostgresPool } from "../infrastructure/postgres";
 import { RestServer } from "../rest";
 import { Logger } from "./logger";
 
-// SIGUSR2 is used by nodemon to notify restart
-const SIGNALS_TO_LISTEN = ["SIGINT", "SIGTERM", "SIGUSR2"];
 // 5s
 const GRACE_TIMEOUT = 5000;
 
@@ -43,9 +41,10 @@ export class Maintenance {
   }
 
   setupSignalHandler(): void {
-    for (const signal of SIGNALS_TO_LISTEN) {
-      process.once(signal, this.signalHandler);
-    }
+    process.once("SIGINT", this.signalHandler);
+    process.once("SIGTERM", this.signalHandler);
+    // SIGUSR2 is used by nodemon to notify restart
+    process.once("SIGUSR2", this.signalHandler);
   }
 
   private async signalHandler(signal: string): Promise<void> {
