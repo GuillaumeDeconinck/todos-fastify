@@ -15,7 +15,7 @@ interface AppConfig {
 interface PGConfig {
   host: string;
   port: number;
-  user: string;
+  username: string;
   password: string;
   database: string;
   ssl: boolean;
@@ -81,7 +81,7 @@ export class AppConfiguration {
     this.pgConfig = {
       host: PG_HOST,
       port: parseInt(PG_PORT, 10),
-      user: PG_USER,
+      username: PG_USER,
       password: PG_PASS,
       database: PG_DB,
       ssl: PG_SSL === "true"
