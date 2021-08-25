@@ -3,8 +3,9 @@ import { AppConfiguration } from "../../tools/config";
 import { Logger } from "../../tools/logger";
 // Import the DAOs in order for the @registry to be correctly taken into account
 import "./todos/todos.dao";
-import { Connection, createConnection, EntityTarget, Repository } from "typeorm";
+import { Connection, ConnectionOptions, createConnection, EntityTarget, Repository } from "typeorm";
 import { Todo } from "../../domain/models/Todo";
+import _ from "lodash";
 
 // To be implemented, base class for Postgres
 @singleton()
@@ -18,7 +19,7 @@ export class PostgresPool {
   ) {}
 
   async connect(): Promise<void> {
-    this.pool = await createConnection({
+    const config: ConnectionOptions = {
       type: "postgres",
       ...this.configuration.getPGConfig(),
       entities: [Todo],
@@ -27,7 +28,14 @@ export class PostgresPool {
       },
       synchronize: true, // Ideally shouldn't be used in prod
       logging: ["error"]
-    });
+    };
+
+    if (config.ssl) {
+      // Using this hack as `ssl` key is readonly
+      _.assign(config, { ssl: { rejectUnauthorized: false } });
+    }
+
+    this.pool = await createConnection(config);
   }
 
   getClient(): Connection {
