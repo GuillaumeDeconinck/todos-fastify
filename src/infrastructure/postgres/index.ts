@@ -7,7 +7,6 @@ import { Connection, ConnectionOptions, createConnection, EntityTarget, Reposito
 import { Todo } from "../../domain/models/Todo";
 import _ from "lodash";
 
-// To be implemented, base class for Postgres
 @singleton()
 @injectable()
 export class PostgresPool {
