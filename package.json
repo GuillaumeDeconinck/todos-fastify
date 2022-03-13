@@ -2,6 +2,10 @@
   "name": "portfolio-fastify-classic",
   "version": "0.0.1",
   "description": "",
+  "engines": {
+    "node": ">= 16.0.0",
+    "npm": ">= 8.0.0"
+  },
   "main": "index.js",
   "scripts": {
     "start": "node dist/index.js",
