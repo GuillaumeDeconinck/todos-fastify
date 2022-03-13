@@ -49,7 +49,7 @@ Moreover, the `src` folder is divided as follows (not in alphabetical order):
 
 For running this project, it's expected that you have already on your machine
 
-- NodeJS 14
+- Node 16 & npm 8
 - Docker
 
 ### Running the API
