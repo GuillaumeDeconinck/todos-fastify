@@ -24,4 +24,5 @@ COPY --from=build /app/database.json ./database.json
 COPY --from=build /app/migrations ./migrations
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/openapi.yaml ./openapi.yaml
+COPY --from=build /app/static ./static
 CMD ["node", "dist/index.js"]
