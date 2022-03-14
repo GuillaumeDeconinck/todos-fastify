@@ -253,3 +253,38 @@ jobs:
 
           echo "::set-output name=docker_image_tag::${VERSION}"
           echo "::set-output name=docker_image_remote_digest::${DOCKER_IMAGE_REMOTE_DIGEST}"
+
+  deploy_release:
+    name: Deploy Docker release image
+    if: ${{ github.ref == 'refs/heads/main' || contains(github.ref, 'ref/head/v*') }}
+    needs: ["define_docker_tags_names", "run_e2e"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: deploy_release
+        name: Deploy release
+        run: |
+          DOCKER_IMAGE_PATH=${{ needs.define_docker_tags_names.outputs.docker_image_path }}
+          DOCKER_IMAGE_TAG_RELEASE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_release }}
+
+          DOCKER_IMAGE_RELEASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_RELEASE
+
+          docker pull $DOCKER_IMAGE_RELEASE
+
+          cat >~/.netrc <<EOF
+            machine api.heroku.com
+                login ${{secrets.PERSONAL_EMAIL}}
+                password ${{secrets.HEROKU_API_KEY}}
+            machine git.heroku.com
+                login ${{secrets.PERSONAL_EMAIL}}
+                password ${{secrets.HEROKU_API_KEY}}
+            EOF
+
+          docker tag $DOCKER_IMAGE_RELEASE registry.heroku.com/soryo-fastify-todo/web
+
+          docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
+          docker push registry.heroku.com/soryo-fastify-todo/web
+
+          heroku container:release -a soryo-fastify-todo web
+
+          rm -f ~/.netrc
