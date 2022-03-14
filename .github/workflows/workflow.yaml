@@ -257,7 +257,7 @@ jobs:
   deploy_release:
     name: Deploy Docker release image
     if: ${{ github.ref == 'refs/heads/main' || contains(github.ref, 'ref/head/v*') }}
-    needs: ["define_docker_tags_names", "run_e2e"]
+    needs: ["define_docker_tags_names", "tag_release"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -266,25 +266,37 @@ jobs:
         run: |
           DOCKER_IMAGE_PATH=${{ needs.define_docker_tags_names.outputs.docker_image_path }}
           DOCKER_IMAGE_TAG_RELEASE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_release }}
+          DOCKER_IMAGE_TAG_RELEASE_REMOTE_DIGEST=${{ needs.tag_release.outputs.docker_image_remote_digest }}
 
-          DOCKER_IMAGE_RELEASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_RELEASE
+          DOCKER_IMAGE_RELEASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_RELEASE_REMOTE_DIGEST
+          HEROKU_DOCKER_IMAGE=registry.heroku.com/soryo-fastify-todo/web
 
           docker pull $DOCKER_IMAGE_RELEASE
 
-          cat >~/.netrc <<EOF
-            machine api.heroku.com
-                login ${{secrets.PERSONAL_EMAIL}}
-                password ${{secrets.HEROKU_API_KEY}}
-            machine git.heroku.com
-                login ${{secrets.PERSONAL_EMAIL}}
-                password ${{secrets.HEROKU_API_KEY}}
-            EOF
+          # cat >> ~/.netrc << EOF
+          # machine api.heroku.com
+          #     login ${{secrets.PERSONAL_EMAIL}}
+          #     password ${{secrets.HEROKU_API_KEY}}
+          # machine git.heroku.com
+          #     login ${{secrets.PERSONAL_EMAIL}}
+          #     password ${{secrets.HEROKU_API_KEY}}
+          # EOF
 
-          docker tag $DOCKER_IMAGE_RELEASE registry.heroku.com/soryo-fastify-todo/web
+          echo "Tagging Docker release image for Heroku"
+          docker tag $DOCKER_IMAGE_RELEASE $HEROKU_DOCKER_IMAGE
 
-          docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
-          docker push registry.heroku.com/soryo-fastify-todo/web
+          echo "Login to Heroku registry"
+          docker login --username=_ --password=${{secrets.HEROKU_API_KEY}} registry.heroku.com
+          echo "Pushing image to Heroku registry"
+          docker push $HEROKU_DOCKER_IMAGE
 
-          heroku container:release -a soryo-fastify-todo web
+          echo "Triggering release in Heroku"
+          payload='{"updates":[{"type":"web","docker_image":"'"$HEROKU_DOCKER_IMAGE"'"}]}'
+          curl -n -X PATCH https://api.heroku.com/apps/soryo-fastify-todo/formation \
+          -d "$payload" \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
+          -H "Authorization: Bearer ${{secrets.HEROKU_API_KEY}}"
 
-          rm -f ~/.netrc
+          # heroku container:release -a soryo-fastify-todo web
+          # rm -f ~/.netrc
