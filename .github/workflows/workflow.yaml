@@ -264,14 +264,11 @@ jobs:
       - id: deploy_release
         name: Deploy release
         run: |
-          DOCKER_IMAGE_PATH=${{ needs.define_docker_tags_names.outputs.docker_image_path }}
-          DOCKER_IMAGE_TAG_RELEASE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_release }}
           DOCKER_IMAGE_TAG_RELEASE_REMOTE_DIGEST=${{ needs.tag_release.outputs.docker_image_remote_digest }}
 
-          DOCKER_IMAGE_RELEASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_RELEASE_REMOTE_DIGEST
           HEROKU_DOCKER_IMAGE=registry.heroku.com/soryo-fastify-todo/web
 
-          docker pull $DOCKER_IMAGE_RELEASE
+          docker pull $DOCKER_IMAGE_TAG_RELEASE_REMOTE_DIGEST
 
           # cat >> ~/.netrc << EOF
           # machine api.heroku.com
@@ -283,7 +280,7 @@ jobs:
           # EOF
 
           echo "Tagging Docker release image for Heroku"
-          docker tag $DOCKER_IMAGE_RELEASE $HEROKU_DOCKER_IMAGE
+          docker tag $DOCKER_IMAGE_TAG_RELEASE_REMOTE_DIGEST $HEROKU_DOCKER_IMAGE
 
           echo "Login to Heroku registry"
           docker login --username=_ --password=${{secrets.HEROKU_API_KEY}} registry.heroku.com
