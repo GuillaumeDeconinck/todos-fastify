@@ -13,8 +13,7 @@ CMD ["sh", "-c", "npx db-migrate up -e localKube && npx nodemon src/index.ts"]
 
 FROM base AS build
 COPY ./ ./
-RUN npm run build
-RUN npm ci --production
+RUN npm run build && npm ci --production
 
 FROM node:16-slim AS production
 WORKDIR /app
