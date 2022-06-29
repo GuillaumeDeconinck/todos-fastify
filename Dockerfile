@@ -7,7 +7,10 @@ RUN npm ci
 
 FROM base AS dev
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN curl https://get.trunk.io -fsSL | bash
+# trunk-ignore(hadolint/DL3008)
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends curl ca-certificates && \
+  curl https://get.trunk.io -fsSL | bash -s - -y
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
 RUN chmod +x /wait
 COPY ./ ./
