@@ -33,7 +33,6 @@ services:
     volumes:
       - ./src:/app/src
       - ./__tests__:/app/__tests__
-      - ./migrations:/app/migrations
     links:
       - postgres
       - api

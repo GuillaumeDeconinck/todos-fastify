@@ -16,18 +16,15 @@ I want this API to follow a few principles:
 - Properly documented
 - Good error messages, as the happy flow is not the only flow
 
-
 ## Structure of the project
 
-| Folder or file         | Explanation                                                 |
-| ---------------------- | ----------------------------------------------------------- |
-| `__tests__`            | Unit and e2e tests                                          |
-| `.github`              | Github workflow folder (CI/CD)                              |
-| `migrations`           | DB migrations                                               |
-| `src`                  | Source code, as expected                                    |
-| `database.json`        | Configuration file for migrations (and only for migrations) |
-| `docker-compose*.yaml` | All the docker-compose files, used for dev & e2e tests      |
-| `openapi.yaml`         | **OpenAPI definition** of the API                           |
+| Folder or file         | Explanation                                            |
+| ---------------------- | ------------------------------------------------------ |
+| `__tests__`            | Unit and e2e tests                                     |
+| `.github`              | Github workflow folder (CI/CD)                         |
+| `src`                  | Source code, as expected                               |
+| `docker-compose*.yaml` | All the docker-compose files, used for dev & e2e tests |
+| `openapi.yaml`         | **OpenAPI definition** of the API                      |
 
 Moreover, the `src` folder is divided as follows (not in alphabetical order):
 
@@ -78,6 +75,8 @@ After a ~~short~~ time, you should have a running API on port `9002` (default)
 
 ### Migrations
 
+> Outdated, to be rewritten soon
+
 As you may have noticed, migrations weren't mentioned at all in the previous section. **The migrations are in fact run during the startup of the API.** This is not always the best thing to do (e.g. a highly sensitive migration that cannot be avoided), but for this simple API, it's okay.
 
 To create a new migration, simply run
@@ -87,8 +86,6 @@ npx db-migrate create the-name-of-the-migration
 ```
 
 It will create a new file in the `migrations` folder, with a timestamp and the name provided.
-
-> More infos in the [db-migrate docs](https://db-migrate.readthedocs.io/en/latest/)
 
 ## Testing the API
 
