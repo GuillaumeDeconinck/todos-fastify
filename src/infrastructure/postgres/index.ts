@@ -6,6 +6,7 @@ import "./todos/todos.dao";
 import { Connection, ConnectionOptions, createConnection, EntityTarget, Repository } from "typeorm";
 import { Todo } from "../../domain/models/Todo";
 import _ from "lodash";
+import { migrations } from "./migrations";
 
 @singleton()
 @injectable()
@@ -25,7 +26,8 @@ export class PostgresPool {
       extra: {
         connectionLimit: 5
       },
-      synchronize: true, // Ideally shouldn't be used in prod
+      migrationsRun: true,
+      migrations,
       logging: ["error"]
     };
 
