@@ -103,29 +103,22 @@ jobs:
           docker push $DOCKER_IMAGE_BASE
 
   run_lint:
-    name: Run lint on Docker base image
+    name: Run lint
     needs: ["define_docker_tags_names", "build_base"]
     runs-on: ubuntu-latest
     permissions:
       packages: read
     steps:
-      - id: login
-        name: Log in to GitHub Docker Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - id: run_lint
-        name: Run lint on Docker base image
+      - id: checkout
+        uses: actions/checkout@v2
+      - id: Install packages
         run: |
-          DOCKER_IMAGE_PATH=${{ needs.define_docker_tags_names.outputs.docker_image_path }}
-          DOCKER_IMAGE_TAG_BASE=${{ needs.define_docker_tags_names.outputs.docker_image_tag_base }}
-
-          DOCKER_IMAGE_BASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_BASE
-
-          docker pull $DOCKER_IMAGE_BASE
-          docker run --rm $DOCKER_IMAGE_BASE npm run lint-trunk
+          npm ci
+      - name: Trunk Check
+        uses: trunk-io/trunk-action@v1
+        with:
+          check-mode: all
+          arguments: --github-annotate-new-only=false
 
   run_unit_tests:
     name: Run unit tests on Docker base image
