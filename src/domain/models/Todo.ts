@@ -7,14 +7,17 @@ export enum TodoState {
   DELETED = "DELETED"
 }
 
-@Entity()
+@Entity({ name: "todos" })
 export class Todo {
   @PrimaryColumn({
     type: "uuid"
   })
   uuid: string;
 
-  @Column("uuid")
+  @Column({
+    type: "uuid",
+    name: "owner_uuid"
+  })
   ownerUuid: string;
 
   @Column({
