@@ -6,6 +6,8 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 FROM base AS dev
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN curl https://get.trunk.io -fsSL | bash
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
 RUN chmod +x /wait
 COPY ./ ./
@@ -13,8 +15,7 @@ CMD ["sh", "-c", "npx db-migrate up -e localKube && npx nodemon src/index.ts"]
 
 FROM base AS build
 COPY ./ ./
-RUN npm run build
-RUN npm ci --production
+RUN npm run build && npm ci --production
 
 FROM node:16-slim AS production
 WORKDIR /app

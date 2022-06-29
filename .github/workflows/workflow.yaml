@@ -125,7 +125,7 @@ jobs:
           DOCKER_IMAGE_BASE=$DOCKER_IMAGE_PATH:$DOCKER_IMAGE_TAG_BASE
 
           docker pull $DOCKER_IMAGE_BASE
-          docker run --rm $DOCKER_IMAGE_BASE npm run lint
+          docker run --rm $DOCKER_IMAGE_BASE npm run lint-trunk
 
   run_unit_tests:
     name: Run unit tests on Docker base image
@@ -154,8 +154,7 @@ jobs:
 
   build_candidate:
     name: Build & push Docker candidate image
-    needs:
-      ["define_docker_tags_names", "build_base", "run_lint", "run_unit_tests"]
+    needs: ["define_docker_tags_names", "build_base", "run_lint", "run_unit_tests"]
     runs-on: ubuntu-latest
     permissions:
       packages: write
