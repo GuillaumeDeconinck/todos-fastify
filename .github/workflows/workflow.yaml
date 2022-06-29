@@ -106,8 +106,6 @@ jobs:
     name: Run lint
     needs: ["define_docker_tags_names", "build_base"]
     runs-on: ubuntu-latest
-    permissions:
-      packages: read
     steps:
       - id: checkout
         uses: actions/checkout@v2
