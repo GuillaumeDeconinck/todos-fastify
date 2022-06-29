@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 # To run: DOCKER_IMAGE=ghcr.io/hooktify-io/accounts-backend:latest ./__tests__/e2e/start_e2e.sh
 
