@@ -1,3 +1,4 @@
+import "./tracing";
 import "reflect-metadata";
 import { container } from "tsyringe";
 import { AppConfiguration } from "./tools/config";
