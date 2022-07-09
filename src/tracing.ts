@@ -1,13 +1,25 @@
-import { NodeSDK, tracing } from "@opentelemetry/sdk-node";
+import { NodeSDK } from "@opentelemetry/sdk-node";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
-// import { diag, DiagConsoleLogger, DiagLogLevel } from "@opentelemetry/api";
+import { OTLPTraceExporter as OTLPTraceExporterGrpc } from "@opentelemetry/exporter-trace-otlp-grpc";
+import { Resource } from "@opentelemetry/resources";
+import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 
-// For troubleshooting, set the log level to DiagLogLevel.DEBUG
-// diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+/*
+  Initialize tracing
+  Example of url: "http://host.docker.internal:4317"
+*/
+if (process.env.OTLP_GRPC_ENDPOINT) {
+  const exporterGrpc = new OTLPTraceExporterGrpc({
+    url: process.env.OTLP_GRPC_ENDPOINT
+  });
 
-const sdk = new NodeSDK({
-  traceExporter: new tracing.ConsoleSpanExporter(),
-  instrumentations: [getNodeAutoInstrumentations()]
-});
+  const sdk = new NodeSDK({
+    resource: new Resource({
+      [SemanticResourceAttributes.SERVICE_NAME]: process.env.APP_NAME ?? "todos-api"
+    }),
+    traceExporter: exporterGrpc,
+    instrumentations: [getNodeAutoInstrumentations()]
+  });
 
-sdk.start();
+  sdk.start();
+}
