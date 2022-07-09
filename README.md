@@ -2,11 +2,11 @@
 
 ## What is this repository ?
 
-This repository, as the name suggests, is an implementation of a Todos API. The main goal of this API is to serve as a "proof" (or "portfolio") of my own skills. This API is implemented in **Typescript** and uses **NodeJS 14** (might soon move to 16, even though it's not yet in LTS).
+This repository, as the name suggests, is an implementation of a Todos API. The main goal of this API is to serve as a "proof" (or "portfolio") of my own skills. This API is implemented in **Typescript** and uses **NodeJS 16**.
 
-While building this API, I'm also learning new stuff and applying new concepts that I haven't used before (but likely should have).
+While building this API, I'm also sometimes learning new stuff and applying new concepts that I haven't had the occasion to use before.
 
-I want this API to follow a few principles:
+Ideally, I would like this API to follow a few principles:
 
 - [12-factor app](https://12factor.net/)
 - DI (Dependency Injection) with interfaces, thanks to [tsyringe](https://github.com/microsoft/tsyringe)
@@ -73,6 +73,19 @@ npm run dev
 
 After a ~~short~~ time, you should have a running API on port `9002` (default)
 
+### Monitoring
+
+The API can provide traces of what is happening to the env var `OTLP_GRPC_ENDPOINT`.
+
+The spans are generated with [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-js) and have been tested with [SigNoz](https://github.com/SigNoz/signoz).
+
+<details>
+  <summary>Screenshots in SigNoz</summary>
+  
+  ![List of endpoints with their metrics](docs/images/TodosTracesEndpoints.png)
+  ![Spans of a PUT request](docs/images/TodosTracesPUT.png)
+</details>
+
 ### Migrations
 
 > Outdated, to be rewritten soon
@@ -132,7 +145,6 @@ The roadmap is kinda described in the issues of this repository, but in "short" 
 - Handle errors more gracefully
 - Handle shutdown signal gracefully (e.g. do not kill all ongoing requests)
 - Prometheus metrics
-- Span/tracing of requests (ELK ?)
 - Proper logging in JSON with good metadata/error handling
 - Healthcheck/readiness routes
 - Auth with JWT

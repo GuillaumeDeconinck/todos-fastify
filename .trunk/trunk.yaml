@@ -11,3 +11,8 @@ lint:
     - prettier@2.7.1
     - shellcheck@0.8.0
     - shfmt@3.5.0
+  ignore:
+    - linters: [ALL]
+      paths:
+        - node_modules/**
+        - build/**
