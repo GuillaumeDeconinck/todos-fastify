@@ -14,6 +14,11 @@ services:
       PG_USER: root
       PG_PASS: root
       PG_DB: todos
+      OTLP_GRPC_ENDPOINT: http://datadog-agent:4317
+      DD_ENV: 'development'
+      DD_SERVICE: 'todos-fastify'
+      DD_VERSION: 'v1.0.0'
+    init: true
     command: 'sh -c "/wait && npx nodemon -w src -w openapi.yaml -w static src/index.ts"'
     volumes:
       - ./src:/app/src
@@ -21,3 +26,22 @@ services:
       - ./static:/app/static
     links:
       - postgres
+      - datadog-agent
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:latest
+    pid: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /proc/:/host/proc/:ro
+      - /opt/datadog-agent/run:/opt/datadog-agent/run:rw
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    environment:
+      DD_API_KEY: "replaceme"
+      DD_APM_ENABLED: true
+      DD_APM_NON_LOCAL_TRAFFIC: true
+      DD_SITE: datadoghq.eu
+      DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT: 0.0.0.0:4317
+      DD_LOGS_ENABLED: true
+      DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: true
+      DD_CONTAINER_EXCLUDE: "name:datadog-agent"

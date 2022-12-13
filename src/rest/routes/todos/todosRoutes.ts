@@ -2,14 +2,20 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { inject, singleton } from "tsyringe";
 import { TodosAppService } from "../../../application/services/todosAppService";
 import { Todo } from "../../../domain/models/Todo";
+import { Logger } from "../../../tools/logger";
 
 @singleton()
 export class TodosRoutes {
-  constructor(@inject(TodosAppService) private todosAppService: TodosAppService) {}
+  constructor(
+    @inject(TodosAppService) private todosAppService: TodosAppService,
+    @inject(Logger) private logger: Logger
+  ) {}
 
   listTodos = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     // Will come from the JWT
     const ownerUuid = request.query["ownerUuid"];
+
+    this.logger.logger.info("Test");
 
     const todos = await this.todosAppService.listTodos(ownerUuid);
     reply.status(200).send(todos);
